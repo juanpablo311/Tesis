@@ -2,11 +2,11 @@ import dominoes.__init__
 import subprocess
 
 # possible strategies for each of the players
+f3=open('test3.txt','w') 
 
+ai=[dominoes.players.random,dominoes.players.omniscient()]
 
-ai=[dominoes.players.random,dominoes.players.omniscient(),dominoes.players.probabilistic_alphabeta()]
-
-player_list =[ai[2],ai[0],ai[2],ai[0]]
+player_list =[ai[0],ai[0],ai[0],ai[0]]
 # clear the terminal before starting the series
 input('Welcome! Proceeding will clear all text from this terminal session.'
       ' If you are OK with this, press enter to continue.')
@@ -22,27 +22,31 @@ game = series.games[0]
 # the game will be None once the series has ended
 while game is not None:
     # clear the terminal upon starting a new game
-    input('Press enter to begin game {}.'.format(len(series.games) - 1))
-    subprocess.call(['tput', 'reset'])
+    
 
     # the player holding the [6|6] plays first, in the first game. in all other
     # games, the outcome of the previous game determines the starting player.
     if len(series.games) == 1:
         print('Player {} had the [6|6] and made the first move.'.format(game.starting_player))
-
+        f3.write('Player {} had the [6|6] and made the first move.\n'.format(game.starting_player))
     # game.result will be filled in once the game ends
     while game.result is None:
         # print the game state so that all players can see it
         print('Board:')
+        f3.write('Board:')
         print(game.board)
+        f3.write(str(game.board))
         for player, hand in enumerate(game.hands):
             print('Player {} hand: {} .'.format(player,hand))
+            f3.write('Player {} hand: {}\n .'.format(player,hand))
 
         # clear the terminal upon starting a new turn
         
         # print the board so that the player can decide what to play
         print('Board:')
+        f3.write('Board:')
         print(game.board)
+        f3.write(str(game.board)+'\n')
 
         # remember whose turn it currently is.
         # we'll need it after we move on to the next player.
@@ -60,6 +64,11 @@ while game is not None:
                 game.valid_moves[0][0],
                 'left' if game.valid_moves[0][1] else 'right'
             ))
+        f3.write('Player {}  chose to play {} on the {} end of the board.\n'.format(
+                game.turn,
+                game.valid_moves[0][0],
+                'left' if game.valid_moves[0][1] else 'right'
+            ))
 
             # make the selected move
         game.make_move(*game.valid_moves[0])
@@ -70,12 +79,18 @@ while game is not None:
 
     # game over - move on to the next game
     print('Game over!')
+    f3.write('Game over!\n')
     print(game)
+    f3.write(str(game)+'\n')
+    
 
     game = series.next_game()
     print('The current state of the series:')
+    f3.write('The current state of the series:')
     print(series)
+    f3.write(str(series)+'\n')
 
 # once the series has ended, print out the winning team
 winning_team, _ = max(enumerate(series.scores), key=lambda i_score: i_score[1])
 print('Team {} wins!'.format(winning_team))
+f3.write('Team {} wins!\n'.format(winning_team))

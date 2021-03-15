@@ -96,7 +96,7 @@ def _all_possible_partitionings(elements, sizes):
     # iterate over all possible partitions of the current size
     for partition in itertools.combinations(elements, size):
         # recursive case: pass down the remaining elements and the remaining sizes
-        for other_partitions in _all_possible_partitionings(elements.difference(partition), sizes):
+        for other_partitions in _all_possible_partitionings(elements.difference(set(partition)), sizes):
             # put results together and yield up
             yield (partition,) + other_partitions
 
@@ -337,10 +337,16 @@ class Game:
 
         # check if the game ended due to a player running out of dominoes
         if not self.hands[self.turn]:
-            self.valid_moves = ()
+            #determina que equipo gano
+            if self.turn%2: 
+              l1,l2= [0,2]
+            else: 
+              l1,l2 =[1,3]
+            player_points = _remaining_points(self.hands)
+
+            score= pow(-1, self.turn)*(player_points[l1]+player_points[l2])
             self.result = dominoes.Result(
-                self.turn, True, pow(-1, self.turn) * sum(_remaining_points(self.hands))
-            )
+                self.turn, True, score)
             return self.result
 
         # advance the turn to the next player with a valid move.
@@ -364,11 +370,11 @@ class Game:
                            player_points[1] + player_points[3]]
 
             if team_points[0] < team_points[1]:
-                self.result = dominoes.Result(self.turn, False, sum(team_points))
+                self.result = dominoes.Result(self.turn, False, team_points[0])
             elif team_points[0] == team_points[1]:
                 self.result = dominoes.Result(self.turn, False, 0)
             else:
-                self.result = dominoes.Result(self.turn, False, -sum(team_points))
+                self.result = dominoes.Result(self.turn, False, -team_points[1])
 
             return self.result
 

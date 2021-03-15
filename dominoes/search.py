@@ -1,7 +1,7 @@
 import copy
 import dominoes
 import operator
-
+from dominoes.juanp import track_players_moves
 def make_moves(game, player=dominoes.players.identity):
     '''
     For each of a Game object's valid moves, yields
@@ -74,6 +74,60 @@ def alphabeta(game, alpha_beta=(-float('inf'), float('inf')),
             best_moves = moves
             best_moves.insert(0, move)
             alpha_beta = update(alpha_beta, best_value)
+            if alpha_beta[1] <= alpha_beta[0]:
+                # alpha-beta cutoff
+                break
+
+    return best_moves, best_value
+
+
+def evaluate(game):
+  if game.turn%2:
+    return(-len(game.hands[0]-len(game.hands[2])))
+  else: return (len(game.hands[1])+len(game.hands[3]))
+
+
+def dl_alphabeta(game,depth, alpha_beta=(-float('inf'), float('inf')),
+              player=dominoes.players.identity):
+    '''
+    Runs minimax search with alpha-beta pruning on the provided game.
+
+    :param Game game: game to search
+    :param tuple alpha_beta: a tuple of two floats that indicate
+                             the initial values of alpha and beta,
+                             respectively. The default is (-inf, inf).
+    :param callable player: player used to sort moves to be explored.
+                            Ordering better moves first may significantly
+                            reduce the amount of moves that need to be
+                            explored. The identity player is the default.
+    '''
+    # base case - game is over
+    if game.result is not None:
+      return [], game.result.points
+    
+    if depth==0:
+      return[], evaluate(game)
+
+    if game.turn % 2:
+        # minimizing player
+        best_value = float('inf')
+        op = operator.lt
+        update = lambda ab, v: (ab[0], min(ab[1], v))
+    else:
+        # maximizing player
+        best_value = -float('inf')
+        op = operator.gt
+        update = lambda ab, v: (max(ab[0], v), ab[1])
+
+    # recursive case - game is not over
+    for move, new_game in make_moves(game, player):
+        moves, value = alphabeta(new_game, depth-1, alpha_beta, player)
+        if op(value, best_value):
+            best_value = value
+            best_moves = moves
+            best_moves.insert(0, move)
+            alpha_beta = update(alpha_beta, best_value)
+            #Si beta es menor que alfa:
             if alpha_beta[1] <= alpha_beta[0]:
                 # alpha-beta cutoff
                 break

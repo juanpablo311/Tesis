@@ -160,7 +160,6 @@ class probabilistic_alphabeta:
     including its hand, the sizes of the other players' hands, and the moves played
     by every player, including the passes. An instance of this class must first be
     initialized before it can be called in the usual way.
-
     :param int start_move: move number at which to start applying this
                            player. If this player is called before the
                            specified move number, it will have no effect.
@@ -220,3 +219,5 @@ class probabilistic_alphabeta:
 
         # prefer moves that are more frequently optimal
         game.valid_moves = tuple(sorted(game.valid_moves, key=lambda m: -counter[m]))
+
+  

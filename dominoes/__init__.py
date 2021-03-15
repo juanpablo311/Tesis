@@ -14,3 +14,4 @@ from dominoes.hand import Hand
 from dominoes.result import Result
 from dominoes.series import Series
 from dominoes.skinny_board import SkinnyBoard
+#from dominoes import juanp
